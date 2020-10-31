@@ -15,3 +15,28 @@
  */
 
 #include <gtest/gtest.h>
+#define HAVE_NO_TLD
+
+#include <string>
+#include "opentelemetry/exporters/etw/etw_tracer_exporter.h"
+
+using namespace OPENTELEMETRY_NAMESPACE;
+
+using ETWEvent = std::map<nostd::string_view, common::AttributeValue>;
+
+TEST(ETWTracer, TracerCheck)
+{
+  std::string providerName = "OpenTelemetry";
+  std::string eventName    = "MyEvent";
+
+  ETW::TracerProvider tp;
+  auto tracer = tp.GetTracer(providerName);
+  auto span   = tracer->StartSpan("MySpan");
+
+  ETWEvent event = {
+      {"uint32Key", (uint32_t)123456}, {"uint64Key", (uint64_t)123456}, {"strKey", "someValue"}};
+
+  EXPECT_NO_THROW(span->AddEvent(eventName, event));
+  EXPECT_NO_THROW(span->End());
+  EXPECT_NO_THROW(tracer->Close());
+}

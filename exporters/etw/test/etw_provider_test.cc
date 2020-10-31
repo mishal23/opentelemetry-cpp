@@ -41,3 +41,33 @@ TEST(ETWProvider, ProviderIsNotRegisteredSuccessfully)
   bool registered = etw.is_registered(providerName);
   ASSERT_FALSE(registered);
 }
+
+TEST(ETWProvider, CheckOpenGUIDDataSuccessfully)
+{
+  std::string providerName = "OpenTelemetry";
+
+  // get GUID from the handle returned
+  static ETWProvider etw;
+  auto handle = etw.open(providerName.c_str());
+
+  event::UUID uuid_handle(handle.providerGuid);
+  auto guidStrHandle = uuid_handle.to_string();
+
+  // get GUID from the providerName
+  auto guid = utils::GetProviderGuid(providerName.c_str());
+  event::UUID uuid_name(guid);
+  auto guidStrName = uuid_name.to_string();
+
+  ASSERT_STREQ(guidStrHandle.c_str(), guidStrName.c_str());
+}
+
+TEST(ETWProvider, CheckCloseSuccess)
+{
+  std::string providerName = "OpenTelemetry";
+
+  static ETWProvider etw;
+  auto handle = etw.open(providerName.c_str());
+
+  auto result = etw.close(handle);
+  ASSERT_NE(result, etw.STATUS_ERROR);
+}

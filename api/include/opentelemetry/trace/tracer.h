@@ -45,13 +45,11 @@ public:
 
   template <class T,
             nostd::enable_if_t<common::detail::is_key_value_iterable<T>::value> * = nullptr>
-  // template <class T, nostd::enable_if_t<detail::is_key_value_iterable<T>::value> * = nullptr>
   nostd::shared_ptr<Span> StartSpan(nostd::string_view name,
                                     const T &attributes,
                                     const StartSpanOptions &options = {}) noexcept
   {
     return this->StartSpan(name, common::KeyValueIterableView<T>(attributes), options);
-    // return this->StartSpan(name, KeyValueIterableView<T>(attributes), options);
   }
 
   template <class T,
@@ -179,6 +177,12 @@ public:
   {
     this->CloseWithMicroseconds(
         static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(timeout)));
+  }
+
+  void Close() noexcept
+  {
+    /* TODO: respect timeout from TracerOptions? */
+    CloseWithMicroseconds(0);
   }
 
   virtual void CloseWithMicroseconds(uint64_t timeout) noexcept = 0;
