@@ -414,14 +414,17 @@ public:
   /**
    * @param
    */
-  ETWTracerExporter() {}
+  ETWTracerExporter(std::string providerName, std::string eventName): providerName_(providerName), eventName_(eventName) 
+  {
+  }
 
   /**
    * @return Returns a unique pointer to an empty recordable object
    */
   std::unique_ptr<sdk::trace::Recordable> MakeRecordable() noexcept override
   {
-    // return std::unique_ptr<sdk::trace::Recordable>(new sdk::trace::SpanData());
+    // TODO: Discuss how we want to make the Recordable
+    //return std::unique_ptr<sdk::trace::Recordable>(new TracerProvider());
   }
 
   /**
@@ -434,10 +437,11 @@ public:
   {
     for (auto &recordable : recordables)
     {
-      auto span = std::unique_ptr<sdk::trace::SpanData>(
-          dynamic_cast<sdk::trace::SpanData *>(recordable.release()));
-      if (span != nullptr)
+      auto tp = std::unique_ptr<TracerProvider>(
+          dynamic_cast<TracerProvider *>(recordable.release()));
+      if (tp != nullptr)
       {
+        auto tracer = tp->GetTracer(providerName_);
         // do whatever is needed
       }
     }
@@ -453,6 +457,8 @@ public:
       std::chrono::microseconds timeout = std::chrono::microseconds(0)) noexcept override{};
 
 private:
+  std::string providerName_;
+  std::string eventName_;
 };
 
 } // namespace ETW
