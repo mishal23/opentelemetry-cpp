@@ -412,7 +412,8 @@ class ETWTracerExporter final : public opentelemetry::sdk::trace::SpanExporter
 {
 public:
   /**
-   * @param
+   * @param providerName
+   * @param eventName
    */
   ETWTracerExporter(std::string providerName, std::string eventName): providerName_(providerName), eventName_(eventName) 
   {
@@ -442,6 +443,8 @@ public:
       if (tp != nullptr)
       {
         auto tracer = tp->GetTracer(providerName_);
+        auto span   = tracer->StartSpan("MySpan");
+
         // do whatever is needed
       }
     }
