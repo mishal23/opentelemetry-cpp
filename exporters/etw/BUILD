@@ -13,6 +13,7 @@ cc_library(
     strip_include_prefix = "include",
     deps = [
         "//api",
+        "//sdk/src/trace",
     ],
 )
 
@@ -39,6 +40,7 @@ cc_library(
     deps = [
         ":etw_provider_exporter",
         "//api",
+        "//sdk/src/trace",
     ],
 )
 

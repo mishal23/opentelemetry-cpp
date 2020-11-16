@@ -29,6 +29,11 @@
 #include "opentelemetry/trace/span_id.h"
 #include "opentelemetry/trace/trace_id.h"
 #include "opentelemetry/trace/tracer_provider.h"
+#include "opentelemetry/trace/span_context_kv_iterable_view.h"
+
+#include "opentelemetry/sdk/trace/exporter.h"
+#include "opentelemetry/sdk/trace/recordable.h"
+#include "opentelemetry/sdk/trace/span_data.h"
 
 #include <fstream>
 #include <iomanip>
@@ -48,53 +53,6 @@ OPENTELEMETRY_BEGIN_NAMESPACE
 
 namespace ETW
 {
-class ETWTracerExporter final : public opentelemetry::sdk::trace::SpanExporter
-{
-public:
-  /**
-   * @param 
-   */
-  ETWTracerExporter()
-  {}
-
-  /**
-   * @return Returns a unique pointer to an empty recordable object
-   */
-  std::unique_ptr<sdk::trace::Recordable> MakeRecordable() noexcept override
-  {
-    // return std::unique_ptr<sdk::trace::Recordable>(new sdk::trace::SpanData());
-  }
-
-  /**
-   * @param recordables a required span containing unique pointers to the data
-   * to add to the ETWTracerExporter
-   * @return Returns the result of the operation
-   */
-  sdk::trace::ExportResult Export(
-      const nostd::span<std::unique_ptr<sdk::trace::Recordable>> &recordables) noexcept override
-  {
-    for (auto &recordable : recordables)
-    {
-      auto span = std::unique_ptr<sdk::trace::SpanData>(
-          dynamic_cast<sdk::trace::SpanData *>(recordable.release()));
-      if (span != nullptr)
-      {
-        // do whatever is needed
-      }
-    }
-
-    return sdk::trace::ExportResult::kSuccess;
-  }
-
-  /**
-   * @param timeout an optional value containing the timeout of the exporter
-   * note: passing custom timeout values is not currently supported for this exporter
-   */
-  void Shutdown(
-      std::chrono::microseconds timeout = std::chrono::microseconds(0)) noexcept override{};
-
-private:
-};
 
 class Span;
 
@@ -160,10 +118,12 @@ public:
   virtual nostd::shared_ptr<trace::Span> StartSpan(
       nostd::string_view name,
       const common::KeyValueIterable &attributes,
+      const trace::SpanContextKeyValueIterable &links,
       const trace::StartSpanOptions &options = {}) noexcept override
   {
     // TODO: support attributes
     UNREFERENCED_PARAMETER(attributes);
+    UNREFERENCED_PARAMETER(links);
     return trace::to_span_ptr<Span, Tracer>(this, name, options);
   };
 
@@ -446,6 +406,53 @@ public:
 #pragma warning(pop)
     return nostd::shared_ptr<trace::Tracer>{new (std::nothrow) Tracer(*this, name, evtFmt)};
   }
+};
+
+class ETWTracerExporter final : public opentelemetry::sdk::trace::SpanExporter
+{
+public:
+  /**
+   * @param
+   */
+  ETWTracerExporter() {}
+
+  /**
+   * @return Returns a unique pointer to an empty recordable object
+   */
+  std::unique_ptr<sdk::trace::Recordable> MakeRecordable() noexcept override
+  {
+    // return std::unique_ptr<sdk::trace::Recordable>(new sdk::trace::SpanData());
+  }
+
+  /**
+   * @param recordables a required span containing unique pointers to the data
+   * to add to the ETWTracerExporter
+   * @return Returns the result of the operation
+   */
+  sdk::trace::ExportResult Export(
+      const nostd::span<std::unique_ptr<sdk::trace::Recordable>> &recordables) noexcept override
+  {
+    for (auto &recordable : recordables)
+    {
+      auto span = std::unique_ptr<sdk::trace::SpanData>(
+          dynamic_cast<sdk::trace::SpanData *>(recordable.release()));
+      if (span != nullptr)
+      {
+        // do whatever is needed
+      }
+    }
+
+    return sdk::trace::ExportResult::kSuccess;
+  }
+
+  /**
+   * @param timeout an optional value containing the timeout of the exporter
+   * note: passing custom timeout values is not currently supported for this exporter
+   */
+  void Shutdown(
+      std::chrono::microseconds timeout = std::chrono::microseconds(0)) noexcept override{};
+
+private:
 };
 
 } // namespace ETW
