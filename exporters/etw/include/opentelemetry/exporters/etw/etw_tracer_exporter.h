@@ -33,7 +33,6 @@
 
 #include "opentelemetry/sdk/trace/exporter.h"
 #include "opentelemetry/sdk/trace/recordable.h"
-#include "opentelemetry/sdk/trace/span_data.h"
 #include "opentelemetry/sdk/trace/etw_data.h"
 
 #include <fstream>
@@ -71,9 +70,7 @@ public:
    */
   std::unique_ptr<sdk::trace::Recordable> MakeRecordable() noexcept override
   {
-    // TODO: Fix the error here, for some reason this doesn't work
-    // It gives error saying: cannot instantiate abstract class
-    // return std::unique_ptr<sdk::trace::Recordable>(new sdk::trace::ETWSpanData());
+     return std::unique_ptr<sdk::trace::Recordable>(new sdk::trace::ETWSpanData());
   }
 
   /**

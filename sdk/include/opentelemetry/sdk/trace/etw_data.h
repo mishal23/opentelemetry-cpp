@@ -401,6 +401,7 @@ namespace trace
 
 class ETWSpanData final : public Recordable
 {
+public:
   /**
    * Get the trace id for this span
    * @return the trace id for this span
@@ -489,17 +490,14 @@ class ETWSpanData final : public Recordable
                 core::SystemTimestamp timestamp,
                 const opentelemetry::common::KeyValueIterable &attributes) noexcept override
   {
-      // change as per ETW need
-    /*SpanDataEvent event(std::string(name), timestamp, attributes);
-    events_.push_back(event);*/
+      // TODO: change as per ETW need
   }
 
-  /*void AddLink(const opentelemetry::trace::SpanContext &span_context,
+  void AddLink(const opentelemetry::trace::SpanContext &span_context,
                const opentelemetry::common::KeyValueIterable &attributes) noexcept override
   {
-    SpanDataLink link(span_context, attributes);
-    links_.push_back(link);
-  }*/
+    // TODO: change as per ETW need
+  }
 
   void SetStatus(opentelemetry::trace::CanonicalCode code,
                  nostd::string_view description) noexcept override
