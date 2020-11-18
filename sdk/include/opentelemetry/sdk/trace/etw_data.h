@@ -37,11 +37,9 @@ namespace core  = opentelemetry::core;
 namespace trace = opentelemetry::trace;
 
 OPENTELEMETRY_BEGIN_NAMESPACE
-namespace sdk
-{
-namespace trace
-{
 
+namespace ETW
+{
 class Span;
 
 /// <summary>
@@ -394,7 +392,13 @@ public:
     return nostd::shared_ptr<trace::Tracer>{new (std::nothrow) Tracer(*this, name, evtFmt)};
   }
 };
-	
+}
+
+namespace sdk
+{
+namespace trace
+{
+
 class ETWSpanData final : public Recordable
 {
   /**
@@ -458,13 +462,13 @@ class ETWSpanData final : public Recordable
    * Get the events associated with this span
    * @return the events associated with this span
    */
-  const std::vector<SpanDataEvent> &GetEvents() const noexcept { return events_; }
+  //const std::vector<SpanDataEvent> &GetEvents() const noexcept { return events_; }
 
   /**
    * Get the links associated with this span
    * @return the links associated with this span
    */
-  const std::vector<SpanDataLink> &GetLinks() const noexcept { return links_; }
+  //const std::vector<SpanDataLink> &GetLinks() const noexcept { return links_; }
 
   void SetIds(opentelemetry::trace::TraceId trace_id,
               opentelemetry::trace::SpanId span_id,
@@ -523,9 +527,7 @@ private:
   opentelemetry::trace::CanonicalCode status_code_{opentelemetry::trace::CanonicalCode::OK};
   std::string status_desc_;
   AttributeMap attribute_map_;
-  TracerProvider tracer_provider_;
-  //std::vector<SpanDataEvent> events_;
-  //std::vector<SpanDataLink> links_;
+  ETW::TracerProvider tracer_provider_;
 };
 }  // namespace trace
 }  // namespace sdk
