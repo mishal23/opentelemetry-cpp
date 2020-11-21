@@ -512,8 +512,7 @@ public:
     ETW::TracerProvider tracer_provider_;
 
     tracer_ = tracer_provider_.GetTracer(providerName);
-    // TODO: How to get name of the Span?
-    span_   = tracer_->StartSpan("MySpan");
+    span_   = tracer_->StartSpan(name_);
   }
 
 private:
