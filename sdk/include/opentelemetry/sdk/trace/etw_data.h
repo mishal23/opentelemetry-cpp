@@ -402,6 +402,10 @@ namespace trace
 class ETWSpanData final : public Recordable
 {
 public:
+  ETWSpanData(std::string providerName) 
+  { 
+      InitTracerProvider(providerName);
+  }
   /**
    * Get the trace id for this span
    * @return the trace id for this span
@@ -459,18 +463,6 @@ public:
     return attribute_map_.GetAttributes();
   }
 
-  /**
-   * Get the events associated with this span
-   * @return the events associated with this span
-   */
-  //const std::vector<SpanDataEvent> &GetEvents() const noexcept { return events_; }
-
-  /**
-   * Get the links associated with this span
-   * @return the links associated with this span
-   */
-  //const std::vector<SpanDataLink> &GetLinks() const noexcept { return links_; }
-
   void SetIds(opentelemetry::trace::TraceId trace_id,
               opentelemetry::trace::SpanId span_id,
               opentelemetry::trace::SpanId parent_span_id) noexcept override
@@ -490,13 +482,13 @@ public:
                 core::SystemTimestamp timestamp,
                 const opentelemetry::common::KeyValueIterable &attributes) noexcept override
   {
-      // TODO: change as per ETW need
+    span_->AddEvent(name, timestamp, attributes);
   }
 
   void AddLink(const opentelemetry::trace::SpanContext &span_context,
                const opentelemetry::common::KeyValueIterable &attributes) noexcept override
   {
-    // TODO: change as per ETW need
+    // TODO: Link Implementation for the Span to be implemented
   }
 
   void SetStatus(opentelemetry::trace::CanonicalCode code,
@@ -515,6 +507,15 @@ public:
 
   void SetDuration(std::chrono::nanoseconds duration) noexcept override { duration_ = duration; }
 
+  void InitTracerProvider(std::string providerName)
+  {
+    ETW::TracerProvider tracer_provider_;
+
+    tracer_ = tracer_provider_.GetTracer(providerName);
+    // TODO: How to get name of the Span?
+    span_   = tracer_->StartSpan("MySpan");
+  }
+
 private:
   opentelemetry::trace::TraceId trace_id_;
   opentelemetry::trace::SpanId span_id_;
@@ -525,7 +526,8 @@ private:
   opentelemetry::trace::CanonicalCode status_code_{opentelemetry::trace::CanonicalCode::OK};
   std::string status_desc_;
   AttributeMap attribute_map_;
-  ETW::TracerProvider tracer_provider_;
+  nostd::shared_ptr<opentelemetry::trace::Tracer> tracer_;
+  nostd::shared_ptr<opentelemetry::trace::Span> span_;
 };
 }  // namespace trace
 }  // namespace sdk

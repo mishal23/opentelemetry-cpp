@@ -61,8 +61,9 @@ public:
    * @param providerName
    * @param eventName
    */
-  ETWTracerExporter(std::string providerName, std::string eventName): providerName_(providerName), eventName_(eventName) 
+  ETWTracerExporter(std::string providerName): providerName_(providerName)
   {
+    //data_->InitTracerProvider(providerName);
   }
 
   /**
@@ -70,7 +71,7 @@ public:
    */
   std::unique_ptr<sdk::trace::Recordable> MakeRecordable() noexcept override
   {
-     return std::unique_ptr<sdk::trace::Recordable>(new sdk::trace::ETWSpanData());
+     return std::unique_ptr<sdk::trace::Recordable>(new sdk::trace::ETWSpanData(providerName_));
   }
 
   /**
@@ -87,7 +88,24 @@ public:
           dynamic_cast<sdk::trace::ETWSpanData *>(recordable.release()));
       if (span != nullptr)
       {
-        // do whatever is needed
+        char trace_id[32]       = {0};
+        char span_id[16]        = {0};
+        char parent_span_id[16] = {0};
+
+        span->GetTraceId().ToLowerBase16(trace_id);
+        span->GetSpanId().ToLowerBase16(span_id);
+        span->GetParentSpanId().ToLowerBase16(parent_span_id);
+
+        std::cout << "{"
+                  << "\n  name          : " << span->GetName()
+                  << "\n  trace_id      : " << std::string(trace_id, 32)
+                  << "\n  span_id       : " << std::string(span_id, 16)
+                  << "\n  parent_span_id: " << std::string(parent_span_id, 16)
+                  << "\n  start         : " << span->GetStartTime().time_since_epoch().count()
+                  << "\n  duration      : " << span->GetDuration().count()
+                  << "\n  description   : " << span->GetDescription()
+                  << "\n  status        : " << int(span->GetStatus());
+        std::cout << "\n}\n";
       }
     }
 
@@ -103,7 +121,7 @@ public:
 
 private:
   std::string providerName_;
-  std::string eventName_;
+  std::shared_ptr<sdk::trace::ETWSpanData> data_;
 };
 
 } // namespace ETW
