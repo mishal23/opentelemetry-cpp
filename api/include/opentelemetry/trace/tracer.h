@@ -49,7 +49,7 @@ public:
                                     const T &attributes,
                                     const StartSpanOptions &options = {}) noexcept
   {
-    return this->StartSpan(name, attributes, {}, options);
+    return this->StartSpan(name, common::KeyValueIterableView<T>(attributes), options);
   }
 
   template <class T,
