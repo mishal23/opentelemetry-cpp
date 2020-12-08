@@ -52,3 +52,30 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_library(
+    name = "etw_logger_exporter",
+    srcs = [
+        "src/etw_logger_exporter.cc",
+    ],
+    hdrs = [
+        "include/opentelemetry/exporters/etw/etw_logger_exporter.h",
+        "include/opentelemetry/exporters/etw/utils.h",
+        "include/opentelemetry/exporters/etw/uuid.hpp",
+    ],
+    strip_include_prefix = "include",
+    deps = [
+        ":etw_provider_exporter",
+        "//api",
+        "//sdk/src/trace",
+    ],
+)
+
+cc_test(
+    name = "etw_logger_test",
+    srcs = ["test/etw_logger_test.cc"],
+    deps = [
+        ":etw_logger_exporter",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
