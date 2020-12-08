@@ -68,6 +68,7 @@ cc_library(
         ":etw_provider_exporter",
         "//api",
         "//sdk/src/trace",
+        "//sdk/src/logs",
     ],
 )
 

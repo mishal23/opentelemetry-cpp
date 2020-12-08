@@ -31,7 +31,7 @@
 #include "opentelemetry/trace/tracer_provider.h"
 
 #include "opentelemetry/sdk/trace/etw_data.h"
-#include "opentelemetry/sdk/trace/exporter.h"
+#include "opentelemetry/sdk/logs/exporter.h"
 #include "opentelemetry/sdk/trace/recordable.h"
 
 #include <fstream>
@@ -52,6 +52,37 @@ OPENTELEMETRY_BEGIN_NAMESPACE
 
 namespace ETW
 {
+
+class ETWLoggerExporter final : public opentelemetry::sdk::logs::LogExporter
+{
+public:
+  /**
+   * @param providerName
+   */
+  ETWLoggerExporter(std::string providerName) : providerName_(providerName) {}
+
+  /**
+   * @param records a required log record containing unique pointers to the data
+   * to add to the ETWLoggerExporter
+   * @return Returns the result of the operation
+   */
+  sdk::logs::ExportResult Export(
+      const nostd::span<std::unique_ptr<opentelemetry::logs::LogRecord>> &records) noexcept override
+  {
+    // TODO: implement the Export method
+    return sdk::logs::ExportResult::kSuccess;
+  }
+
+  /**
+   * @param timeout an optional value containing the timeout of the exporter
+   * note: passing custom timeout values is not currently supported for this exporter
+   */
+  bool Shutdown(
+      std::chrono::microseconds timeout = std::chrono::microseconds(0)) noexcept override{};
+
+private:
+  std::string providerName_;
+};
 
 }  // namespace ETW
 
